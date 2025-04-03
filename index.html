@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>קטלוג מוצרים</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #search {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+      display: block;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+    #products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .product {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    .product:hover {
+      transform: translateY(-5px);
+    }
+    .product img {
+      width: 100%;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 10px;
+      background-color: #f8f8f8;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+      font-size: 18px;
+    }
+    .product p {
+      margin: 4px 0;
+      font-size: 14px;
+      color: #555;
+    }
+    .product p strong {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<h1>קטלוג מוצרים</h1>
+<input type="text" id="search" placeholder="חפש לפי שם או ברקוד...">
+<div id="products">טוען...</div>
+
+<script>
+  let allProducts = [];
+
+  async function loadProducts() {
+    const res = await fetch("products_array.json");
+    allProducts = await res.json();
+    renderProducts(allProducts);
+  }
+
+  function renderProducts(list) {
+    const container = document.getElementById("products");
+    container.innerHTML = "";
+
+    if (list.length === 0) {
+      container.innerHTML = "<p>לא נמצאו מוצרים.</p>";
+      return;
+    }
+
+    list.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "product";
+      card.innerHTML = `
+        <img src="${p.תמונה || ''}" alt="${p.שם}" loading="lazy" />
+        <h3>${p.שם}</h3>
+        <p><strong>ברקוד:</strong> ${p.ברקוד}</p>
+        <p><strong>מחיר:</strong> ₪${p.מחיר ?? "—"}</p>
+        <p><strong>קטגוריה:</strong> ${p.קטגוריה}</p>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", function () {
+    const term = this.value.trim().toLowerCase();
+    const filtered = allProducts.filter(p =>
+      p.שם.toLowerCase().includes(term) ||
+      p.ברקוד.includes(term)
+    );
+    renderProducts(filtered);
+  });
+
+  loadProducts();
+</script>
+
+</body>
+</html>
